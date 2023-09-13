@@ -1,0 +1,54 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+.btn-login {
+  background-color: coral;
+  padding: 5px 15px;
+  cursor: pointer;
+}
+
+.btn-logout {
+  background-color: rgb(78, 103, 212);
+  padding: 5px 15px;
+  cursor: pointer;
+}
+
+.btn-login:hover {
+  background-color: #ff6b4b;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-logout:hover {
+  background-color: rgb(58, 83, 182);
+}
+
+.btn-backend {
+  background-color: #d4d546;
+  padding: 5px 15px;
+  cursor: pointer;
+}
+
+.btn-backend:hover {
+  background-color: rgb(111, 206, 49);
+}
