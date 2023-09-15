@@ -1,57 +1,58 @@
 import "./App.css";
-import { UserManager, WebStorageStateStore } from "oidc-client";
-import { login, logout } from "./helpers/auth_helper";
-
-const userManagerConfig = {
-  authority: "http://localhost:8080/realms/ecommerce-qa/",
-  client_id: "frontend_keycloak",
-  redirect_uri: window.location.origin + "/signin-callback.html",
-  response_type: "code",
-  scope: "openid profile email",
-  // post_logout_redirect_uri: window.location.origin,
-  userStore: new WebStorageStateStore({ store: window.localStorage }),
-};
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
+import { InteractionRequiredAuthError } from "@azure/msal-browser";
 
 const App = () => {
-  const userManager = new UserManager(userManagerConfig);
+  const { instance, accounts } = useMsal();
 
-  function handleMessage(event) {
-    if (event.origin === window.location.origin && event.data === "keycloak-iframe:logged-in") {
-      // Code to handle successful login
-      // e.g., Redirect the user to a logged-in page
-      window.location.href = "/loggedin-page";
+  const handleLogin = async () => {
+    try {
+      if (accounts.length === 0) {
+        await instance.loginRedirect();
+      } else {
+        // Handle the case where a user is already logged in
+      }
+    } catch (error) {
+      console.error("Login error:", error);
     }
-  }
+  };
 
-  window.addEventListener("message", handleMessage, false);
+  const acquireAccessToken = async () => {
+    var request = {
+      scopes: ["openid", "profile"],
+    };
 
-  function handleLogin() {
-    userManager.signinRedirect();
-  }
+    const accounts = instance.getAllAccounts();
+    instance.setActiveAccount(accounts[0]);
 
-  const callBackend = async () => {
-    // const response = await axiosPrivate.post(
-    //   "/test",
-    //   json
-    //   );
-    console.log("call backedn");
+    instance
+      .acquireTokenSilent(request)
+      .then((tokenResponse) => {
+        console.log("token");
+        console.log(tokenResponse);
+      })
+      .catch(async (error) => {
+        console.log(error);
+        if (error instanceof InteractionRequiredAuthError) {
+          // fallback to interaction when silent call fails
+          return instance.acquireTokenRedirect(request);
+        }
+      });
   };
 
   return (
     <>
-      <p className="read-the-docs">Frontend - Keycloak</p>
-      <div className="container">
-        <button className="btn-login" onClick={handleLogin}>
-          Login
-        </button>
-        <button className="btn-logout" onClick={logout}>
-          Logout
-        </button>
-        <button onClick={callBackend} className="btn-backend">
-          Call Backend
-        </button>
-      </div>
-      {/* <iframe id="keycloak-iframe" src={userManager.createSigninRequest()} /> */}
+      <UnauthenticatedTemplate>
+        <button onClick={handleLogin}>Sign in</button>
+      </UnauthenticatedTemplate>
+      <AuthenticatedTemplate>
+        User is logged in
+        <div>
+          <button onClick={acquireAccessToken}>Acquire access/</button>
+        </div>
+      </AuthenticatedTemplate>
     </>
   );
 };
